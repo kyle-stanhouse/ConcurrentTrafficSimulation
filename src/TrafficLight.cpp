@@ -60,18 +60,19 @@ void TrafficLight::waitForGreen()
     
     while (true)
     {
-        std::future<void> future;
-        future.emplace_back(std::async(std::launch::async, &MessageQueue<TrafficLight>::send, _msgQueue, std::move(message)));
-        future.emplace_back(std::async(std::launch::async, &MessageQueue<TrafficLight>::send, _msgQueue, std::move(message)));
+        //std::future<void> future;
+        //future.emplace_back(std::async(std::launch::async, &MessageQueue<TrafficLight>::send, _msgQueue, std::move(message)));
+        //std::async(std::launch::async, &MessageQueue<TrafficLight>::send, _msgQueue, std::move(message)));
         
         
-        int message = _msgQueue.receive();
-        std::cout << "   Message #" << message << " has been removed from the queue" << std::endl;
+        //int message = _msgQueue.receive();
+        _currentPhase = _msgQueue.receive();
+        //std::cout << "   Message #" << message << " has been removed from the queue" << std::endl;
+        std::cout << "   Traffic Light has changed to " << _currentPhase << std::endl;
     }
 
-    std::for_each(futures.begin(), futures.end(), [](std::future<void> &ftr) {
-        ftr.wait();
-    });
+    //std::for_each(futures.begin(), futures.end(), [](std::future<void> &ftr) {
+    //    ftr.wait();
     
 
   
@@ -125,6 +126,9 @@ void TrafficLight::cycleThroughPhases()
               	_currentPhase = TrafficLightPhase::green;
 
             //send update message to message queue using move semantics
+            std::future<void> future = std::async(std::launch::async, &MessageQueue<TrafficLight>::send, _msgQueue, std::move(_currentPhase));
+            //future.emplace_back(std::async(std::launch::async, &MessageQueue<TrafficLight>::send, _msgQueue, std::move(message)));
+            //std::async(std::launch::async, &MessageQueue<TrafficLight>::send, _msgQueue, std::move(message)));
           	
             
         }
