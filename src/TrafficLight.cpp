@@ -69,12 +69,12 @@ void TrafficLight::waitForGreen()
 
         _currentPhase = _msgQueue.receive();
 
-        if (_currentPhase == TrafficLightPhase::green) {return;}
+        if (_currentPhase == TrafficLightPhase::green) {break;}
         //std::cout << "   Message #" << message << " has been removed from the queue" << std::endl;
         
     }
 
-    std::cout << "   Traffic Light has changed to " << _currentPhase << std::endl;
+    std::cout << "   Traffic Lights have changed to green" << std::endl;
     //std::for_each(futures.begin(), futures.end(), [](std::future<void> &ftr) {
     //    ftr.wait();
 
