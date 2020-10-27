@@ -61,7 +61,7 @@ private:
     // send in conjunction with move semantics.
 
 	TrafficLightPhase _currentPhase; // "red" or "green" traffic light enum
-    std::condition_variable _condition;
+    //std::condition_variable _condition;
     std::mutex _mutex;
     MessageQueue<TrafficLightPhase> _msgQueue;  
 };

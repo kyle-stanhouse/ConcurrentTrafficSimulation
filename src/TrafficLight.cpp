@@ -1,6 +1,7 @@
 #include <iostream>
 #include <random>
 #include <time.h>
+#include <thread>
 #include <future>
 #include <queue>
 #include "TrafficLight.h"
@@ -38,7 +39,7 @@ void MessageQueue<T>::send(T &&msg)
         std::lock_guard<std::mutex> uLock(_mutex);
 
         // add vector to queue
-        std::cout << "   Message " << msg << " has been sent to the queue" << std::endl;
+        //std::cout << "   Message " << msg << " has been sent to the queue" << std::endl;
         _queue.push_back(std::move(msg));
         _cond.notify_one(); // notify client after pushing new Vehicle into vector
 }
@@ -50,6 +51,7 @@ TrafficLight::TrafficLight()
 {
     _currentPhase = TrafficLightPhase::red;
 }
+TrafficLight::~TrafficLight(){}
 
 void TrafficLight::waitForGreen()
 {
@@ -63,17 +65,18 @@ void TrafficLight::waitForGreen()
         //std::future<void> future;
         //future.emplace_back(std::async(std::launch::async, &MessageQueue<TrafficLight>::send, _msgQueue, std::move(message)));
         //std::async(std::launch::async, &MessageQueue<TrafficLight>::send, _msgQueue, std::move(message)));
-        
-        
         //int message = _msgQueue.receive();
+
         _currentPhase = _msgQueue.receive();
+
+        if (_currentPhase == TrafficLightPhase::green) {return;}
         //std::cout << "   Message #" << message << " has been removed from the queue" << std::endl;
-        std::cout << "   Traffic Light has changed to " << _currentPhase << std::endl;
+        
     }
 
+    std::cout << "   Traffic Light has changed to " << _currentPhase << std::endl;
     //std::for_each(futures.begin(), futures.end(), [](std::future<void> &ftr) {
     //    ftr.wait();
-    
 
   
 }
@@ -126,14 +129,17 @@ void TrafficLight::cycleThroughPhases()
               	_currentPhase = TrafficLightPhase::green;
 
             //send update message to message queue using move semantics
-            std::future<void> future = std::async(std::launch::async, &MessageQueue<TrafficLight>::send, _msgQueue, std::move(_currentPhase));
+            //std::future<void> future = std::async(std::launch::async, &MessageQueue<TrafficLight>::send, _msgQueue, std::move(_currentPhase));
             //future.emplace_back(std::async(std::launch::async, &MessageQueue<TrafficLight>::send, _msgQueue, std::move(message)));
             //std::async(std::launch::async, &MessageQueue<TrafficLight>::send, _msgQueue, std::move(message)));
-          	
+
+            _msgQueue.send(std::move(_currentPhase));
+
+            // reset stop watch for next cycle
+            lastUpdate = std::chrono::system_clock::now();
             
         }
-        // reset stop watch for next cycle
-        lastUpdate = std::chrono::system_clock::now();
+
     }
 
 }
